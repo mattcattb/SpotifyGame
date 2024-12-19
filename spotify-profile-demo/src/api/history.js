@@ -28,6 +28,8 @@ const fetchAllRecentlyPlayed = async (token) => {
   }
 }
 
+const fetchPlaylist = async (token) => {}
+
 const fetchProfile = async (token) => {
     const response = await axios.get('https://api.spotify.com/v1/me', {
       headers: {
@@ -37,15 +39,15 @@ const fetchProfile = async (token) => {
     return response.data;
   };
   
-  const fetchRecentlyPlayed = async (token, limit = 50) => {
-    const response = await axios.get(RECENTLY_PLAYED_ENDPOINT, {
-      headers: {
-        Authorization: `Bearer ${token}`,
-      },
-      params: { limit },
-    });
-    console.log(response.data);
-    return response.data.items;
-  };
+const fetchRecentlyPlayed = async (token, limit = 50) => {
+  const response = await axios.get(RECENTLY_PLAYED_ENDPOINT, {
+    headers: {
+      Authorization: `Bearer ${token}`,
+    },
+    params: { limit },
+  });
+  console.log(response.data);
+  return response.data.items;
+};
 
 export { fetchProfile, fetchRecentlyPlayed, fetchAllRecentlyPlayed };

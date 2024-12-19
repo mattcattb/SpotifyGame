@@ -13,8 +13,6 @@ const HomePage = ({ accessToken }) => {
         const profileData = await fetchProfile(accessToken);
         setProfile(profileData);
         const tracks = await fetchRecentlyPlayed(accessToken, 50);
-        const allTracks = await fetchAllRecentlyPlayed(accessToken);
-        console.log(allTracks);
         setRecentlyPlayed(tracks);
       } catch (error) {
         console.error('Error fetching data:', error);
