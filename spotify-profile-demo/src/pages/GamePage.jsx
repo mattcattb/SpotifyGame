@@ -23,13 +23,16 @@ const GamePage = ({ accessToken }) => {
     handleTimeUp
   );
 
+  const seconds_into_song = 30000;
+  const song_play_time = 5000;
+
   // Play the clip when round starts
   useEffect(() => {
     if (isReady && currentRound?.correctSong) {
       playSongClip(
         currentRound.correctSong.uri,
-        30000, // Start 30 seconds into the song
-        5000   // Play for 5 seconds
+        seconds_into_song, // Start 30 seconds into the song
+        song_play_time   // Play for 5 seconds
       );
     }
   }, [isReady, currentRound, playSongClip]);

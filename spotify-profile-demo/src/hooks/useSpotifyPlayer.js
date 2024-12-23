@@ -5,46 +5,73 @@ export function useSpotifyPlayer(accessToken) {
   const [deviceId, setDeviceId] = useState(null);
   const [isReady, setIsReady] = useState(false);
 
+  console.log(deviceId); // Check if your device ID is listed
+
   useEffect(() => {
     // Load Spotify Web Playback SDK if not already loaded
     if (!window.Spotify) {
+      console.log('Loading Spotify SDK...');
       const script = document.createElement('script');
       script.src = 'https://sdk.scdn.co/spotify-player.js'; // Correct URL
       script.async = true; // Ensure script loads asynchronously
       document.body.appendChild(script);
       
       script.onload = () => {
-        initializePlayer();
+        console.log('Spotify SDK Loaded');
+        // Initialize the player once the SDK is loaded
+        window.onSpotifyWebPlaybackSDKReady = () => {
+          const playerInstance = new window.Spotify.Player({
+            name: 'Spotify Game Player',
+            getOAuthToken: cb => cb(accessToken),
+            volume: 0.5,
+          });
+
+          playerInstance.addListener('ready', ({ device_id }) => {
+            console.log('Ready with Device ID', device_id);
+            setDeviceId(device_id);
+            setIsReady(true);
+          });
+
+          playerInstance.addListener('not_ready', ({ device_id }) => {
+            console.log('Device ID has gone offline', device_id);
+            setIsReady(false);
+          });
+
+          playerInstance.connect();
+          setPlayer(playerInstance);
+        };
+      };
+
+      script.onerror = () => {
+        console.log('Failed to load Spotify SDK');
       };
 
       return () => {
         document.body.removeChild(script);
       };
     } else {
-      initializePlayer();
-    }
-
-    function initializePlayer() {
+      console.log('Spotify SDK already loaded');
+      // Initialize the player if the SDK is already loaded
       window.onSpotifyWebPlaybackSDKReady = () => {
-        const player = new window.Spotify.Player({
+        const playerInstance = new window.Spotify.Player({
           name: 'Spotify Game Player',
           getOAuthToken: cb => cb(accessToken),
           volume: 0.5,
         });
 
-        player.addListener('ready', ({ device_id }) => {
+        playerInstance.addListener('ready', ({ device_id }) => {
           console.log('Ready with Device ID', device_id);
           setDeviceId(device_id);
           setIsReady(true);
         });
 
-        player.addListener('not_ready', ({ device_id }) => {
+        playerInstance.addListener('not_ready', ({ device_id }) => {
           console.log('Device ID has gone offline', device_id);
           setIsReady(false);
         });
 
-        player.connect();
-        setPlayer(player);
+        playerInstance.connect();
+        setPlayer(playerInstance);
       };
     }
   }, [accessToken]);
@@ -54,6 +81,8 @@ export function useSpotifyPlayer(accessToken) {
       console.error('Device ID is not set. Cannot play song.');
       return;
     }
+
+    console.log("Playing song clip!!");
 
     try {
       await fetch(`https://api.spotify.com/v1/me/player/play?device_id=${deviceId}`, {

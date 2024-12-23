@@ -1,26 +1,20 @@
-// src/hooks/useGameTimer.js
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect } from 'react';
 
 export function useGameTimer(initialTime, onTimeUp) {
   const [timeLeft, setTimeLeft] = useState(initialTime);
-  const timerRef = useRef(null);
 
   useEffect(() => {
-    setTimeLeft(initialTime);
-    
-    timerRef.current = setInterval(() => {
-      setTimeLeft(prev => {
-        if (prev <= 1) {
-          clearInterval(timerRef.current);
-          onTimeUp?.();
-          return 0;
-        }
-        return prev - 1;
-      });
+    if (timeLeft <= 0) {
+      onTimeUp();
+      return;
+    }
+
+    const timer = setInterval(() => {
+      setTimeLeft((prevTime) => prevTime - 1);
     }, 1000);
 
-    return () => clearInterval(timerRef.current);
-  }, [initialTime, onTimeUp]);
+    return () => clearInterval(timer); // Cleanup timer
+  }, [timeLeft, onTimeUp]);
 
   return timeLeft;
 }
